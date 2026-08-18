@@ -81,19 +81,9 @@
       </div>
 
       <div class="login-card card">
-        <!-- Role Toggle -->
-        <div class="role-toggle">
-          <button id="role-siswa" class="role-btn active" data-role="siswa">
-            <span>🧒</span> Siswa
-          </button>
-          <button id="role-guru" class="role-btn" data-role="guru">
-            <span>👩‍🏫</span> Guru
-          </button>
-        </div>
-
         <form id="login-form" novalidate>
           <div class="form-group">
-            <label for="input-nis" id="label-nis" class="form-label">Nomor Induk Siswa (NIS)</label>
+            <label for="input-nis" id="label-nis" class="form-label">NIS / NIP / Username</label>
             <div class="input-wrapper">
               <span class="input-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -102,9 +92,8 @@
                 type="text"
                 id="input-nis"
                 class="form-input"
-                placeholder="Masukkan NIS kamu"
+                placeholder="Masukkan NIS / NIP / Username"
                 autocomplete="username"
-                inputmode="numeric"
                 aria-labelledby="label-nis"
               />
             </div>
@@ -141,8 +130,8 @@
         </form>
 
         <div class="login-hint card-hint">
-          <p><strong>💡 Demo Akun Siswa:</strong> NIS: 123456 / Sandi: 1234</p>
-          <p><strong>👩‍🏫 Demo Akun Guru:</strong> NIP: GR001 / Sandi: guru123</p>
+          <p>💡 <strong>Siswa</strong> gunakan NIS.</p>
+          <p>👩‍🏫 <strong>Guru</strong> gunakan NIP atau Username.</p>
         </div>
       </div>
     </div>

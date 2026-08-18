@@ -19,34 +19,6 @@ function initLogin() {
   const errorMain    = el('error-login');
   const togglePwd    = el('toggle-password');
 
-  // Role toggle
-  const roleBtns = document.querySelectorAll('.role-btn');
-  let currentRole = 'siswa';
-
-  roleBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentRole = btn.dataset.role;
-      roleBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      if (currentRole === 'siswa') {
-        labelNis.textContent = 'Nomor Induk Siswa (NIS)';
-        inputNis.placeholder = 'Masukkan NIS kamu';
-        inputNis.inputMode = 'numeric';
-      } else {
-        labelNis.textContent = 'Nomor Induk Pegawai (NIP)';
-        inputNis.placeholder = 'Masukkan NIP kamu (contoh: GR001)';
-        inputNis.inputMode = 'text';
-      }
-
-      // Clear errors
-      errorNis.textContent = '';
-      errorPwd.textContent = '';
-      errorMain.textContent = '';
-      inputNis.classList.remove('error');
-      inputPwd.classList.remove('error');
-    });
-  });
 
   // Toggle password visibility
   togglePwd.addEventListener('click', () => {
@@ -75,7 +47,7 @@ function initLogin() {
     let valid = true;
 
     if (!nis) {
-      errorNis.textContent = 'NIS/NIP tidak boleh kosong.';
+      errorNis.textContent = 'NIS / NIP / Username tidak boleh kosong.';
       inputNis.classList.add('error');
       valid = false;
     }

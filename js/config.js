@@ -20,5 +20,5 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // App version
 const APP_VERSION = '1.0.0';
-const SCHOOL_NAME = 'SDN Maju Bersama 01';
+const SCHOOL_NAME = 'SDN 060 Raya Barat';
 const DAILY_TARGET = 60; // Target poin harian (60 menit ≈ 60 poin)

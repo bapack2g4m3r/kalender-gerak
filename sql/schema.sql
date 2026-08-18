@@ -18,7 +18,7 @@ CREATE TABLE profiles (
   role          TEXT NOT NULL CHECK (role IN ('siswa', 'guru')),
   class_name    TEXT,              -- Contoh: "4A", "5B" (untuk siswa)
   grade         INTEGER CHECK (grade BETWEEN 1 AND 6), -- 1-6 (untuk siswa)
-  school_name   TEXT DEFAULT 'SDN Maju Bersama 01',
+  school_name   TEXT DEFAULT 'SDN 060 Raya Barat',
   password      TEXT NOT NULL,
   avatar_color  TEXT DEFAULT '#43A047',  -- Warna avatar inisial
   created_at    TIMESTAMPTZ DEFAULT NOW()

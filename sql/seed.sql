@@ -7,8 +7,8 @@
 -- DATA GURU (2 guru)
 -- ============================================================
 INSERT INTO profiles (nis_nip, name, role, school_name, password, avatar_color) VALUES
-('GR001', 'Bapak Ahmad Fauzi, S.Pd', 'guru', 'SDN Maju Bersama 01', 'guru123', '#1565C0'),
-('GR002', 'Ibu Sari Dewi, S.Pd', 'guru', 'SDN Maju Bersama 01', 'guru123', '#6A1B9A');
+('GR001', 'Bapak Ahmad Fauzi, S.Pd', 'guru', 'SDN 060 Raya Barat', 'guru123', '#1565C0'),
+('GR002', 'Ibu Sari Dewi, S.Pd', 'guru', 'SDN 060 Raya Barat', 'guru123', '#6A1B9A');
 
 -- ============================================================
 -- DATA SISWA (48 siswa, 8 per kelas, kelas 1A-6A)

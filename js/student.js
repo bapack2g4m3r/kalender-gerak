@@ -149,7 +149,7 @@ async function loadActivitiesScreen() {
   // Back button
   const btnBack = el('btn-back-activities');
   if (btnBack) {
-    btnBack.addEventListener('click', () => App.navigate('student-dashboard'));
+    btnBack.onclick = () => App.navigate('student-dashboard');
   }
 }
 

@@ -186,7 +186,7 @@ async function loadStudentDetail(studentId) {
   container.innerHTML = `<div class="loading-placeholder" style="padding:48px">Memuat data siswa...</div>`;
 
   const btnBack = el('btn-back-detail');
-  if (btnBack) btnBack.addEventListener('click', () => App.navigate('teacher-monitoring'));
+  if (btnBack) btnBack.onclick = () => App.navigate('teacher-monitoring');
 
   try {
     const detail = await getStudentFullDetail(studentId);

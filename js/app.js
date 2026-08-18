@@ -289,4 +289,13 @@ function showConnectionError() {
 document.addEventListener('DOMContentLoaded', () => {
   initBottomNav();
   initApp();
+
+  // Listen to browser back/forward buttons
+  window.addEventListener('hashchange', () => {
+    const newHash = window.location.hash.replace('#', '');
+    if (newHash && newHash !== App.currentScreen && App.screens.includes(newHash)) {
+      // Prevent auth loops by doing a soft navigate
+      App.navigate(newHash);
+    }
+  });
 });

@@ -1354,15 +1354,24 @@ a { text-decoration: none; color: inherit; }
    ============================================================ */
 .teacher-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-bottom: var(--space-md);
+  gap: 8px;
 }
 
 .teacher-header-info {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
+  flex: 1;
+}
+
+.teacher-header .date-chip {
+  margin-bottom: 0;
+  white-space: nowrap;
+  padding: 4px 10px;
+  font-size: 11px;
 }
 
 .teacher-role-label {
@@ -1377,9 +1386,10 @@ a { text-decoration: none; color: inherit; }
 }
 
 .teacher-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--text);
+  line-height: 1.3;
 }
 
 .teacher-stats-grid {

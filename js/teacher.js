@@ -19,7 +19,7 @@ async function loadTeacherDashboard() {
   // Set teacher info
   const avatarEl = el('teacher-avatar');
   setAvatarEl(avatarEl, user.name, user.avatar_color);
-  setText('teacher-name', user.name.replace(', S.Pd', ''));
+  setText('teacher-name', user.name);
   setText('teacher-today-date', formatDateShort(new Date()));
 
   try {

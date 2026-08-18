@@ -494,6 +494,6 @@ function loadTeacherProfile() {
   const avatarEl = el('teacher-profile-avatar');
   setAvatarEl(avatarEl, user.name, user.avatar_color);
   setText('teacher-profile-name', user.name);
-  setText('teacher-profile-school', user.school_name || SCHOOL_NAME);
+  setText('teacher-profile-school', SCHOOL_NAME);
   setText('teacher-profile-nip', user.nis_nip);
 }

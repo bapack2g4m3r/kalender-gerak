@@ -14,7 +14,7 @@ async function loadStudentDashboard() {
   const avatarEl = el('student-avatar');
   setAvatarEl(avatarEl, user.name, user.avatar_color);
   setText('student-name', user.name.split(',')[0]);
-  setText('student-class', `Kelas ${user.class_name || '-'} • ${user.school_name || SCHOOL_NAME}`);
+  setText('student-class', `Kelas ${user.class_name || '-'} • ${SCHOOL_NAME}`);
   setText('today-date', formatDateID(new Date()));
 
   try {
@@ -541,7 +541,7 @@ async function loadStudentProfile() {
   setAvatarEl(avatarEl, user.name, user.avatar_color);
   setText('profile-name', user.name);
   setText('profile-class', `Kelas ${user.class_name || '-'}`);
-  setText('profile-school', user.school_name || SCHOOL_NAME);
+  setText('profile-school', SCHOOL_NAME);
 
   try {
     const [streak, badges] = await Promise.all([

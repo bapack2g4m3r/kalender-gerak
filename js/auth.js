@@ -110,21 +110,21 @@ function initLogout() {
   // Student logout
   const btnLogoutStudent = el('btn-logout-student');
   if (btnLogoutStudent) {
-    btnLogoutStudent.addEventListener('click', () => {
+    btnLogoutStudent.onclick = () => {
       if (confirm('Yakin ingin keluar?')) {
         logout();
       }
-    });
+    };
   }
 
   // Teacher logout
   const btnLogoutTeacher = el('btn-logout-teacher');
   if (btnLogoutTeacher) {
-    btnLogoutTeacher.addEventListener('click', () => {
+    btnLogoutTeacher.onclick = () => {
       if (confirm('Yakin ingin keluar?')) {
         logout();
       }
-    });
+    };
   }
 }
 

@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Kalender Gerak — Aplikasi pemantau aktivitas fisik harian untuk siswa SD, mendukung program UKS dan rekomendasi WHO." />
+  <meta name="theme-color" content="#43A047" />
+  <title>Kalender Gerak</title>
+
+  <!-- Google Fonts: Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       APP CONTAINER — SPA Root
+  ============================================================= -->
+  <div id="app">
+    <!-- Loading screen (shown while Supabase initializes) -->
+    <div id="loading-screen" class="loading-screen active">
+      <div class="loading-mascot">
+        <img src="assets/images/kagi.jpg" alt="Kagi si Tupai" />
+      </div>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Memuat Kalender Gerak...</p>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+    <!-- Confetti container -->
+    <div id="confetti-container" class="confetti-container"></div>
+
+    <!-- ========================================================
+         SCREEN 1: SPLASH
+    ======================================================== -->
+    <div id="screen-splash" class="screen">
+      <div class="splash-bg">
+        <div class="splash-bubble splash-bubble-1"></div>
+        <div class="splash-bubble splash-bubble-2"></div>
+        <div class="splash-bubble splash-bubble-3"></div>
+      </div>
+      <div class="splash-content">
+        <div class="splash-logo animate-pop">
+          <div class="logo-icon">🏃</div>
+        </div>
+        <h1 class="splash-title animate-slide-up">Kalender Gerak</h1>
+        <p class="splash-tagline animate-slide-up delay-1">Gerak Sehat, Belajar Hebat!</p>
+        <div class="splash-mascot animate-bounce">
+          <img src="assets/images/kagi.jpg" alt="Kagi si Tupai maskot Kalender Gerak" />
+        </div>
+        <p class="splash-school animate-fade delay-2">SDN Maju Bersama 01</p>
+        <button id="btn-splash-masuk" class="btn btn-primary btn-lg animate-slide-up delay-2">
+          <span>Masuk</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 2: LOGIN
+    ======================================================== -->
+    <div id="screen-login" class="screen">
+      <div class="login-header">
+        <div class="login-logo">
+          <span class="login-logo-icon">🏃</span>
+          <span class="login-logo-text">Kalender Gerak</span>
+        </div>
+        <p class="login-school">SDN Maju Bersama 01</p>
+      </div>
+
+      <div class="login-card card">
+        <!-- Role Toggle -->
+        <div class="role-toggle">
+          <button id="role-siswa" class="role-btn active" data-role="siswa">
+            <span>🧒</span> Siswa
+          </button>
+          <button id="role-guru" class="role-btn" data-role="guru">
+            <span>👩‍🏫</span> Guru
+          </button>
+        </div>
+
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label for="input-nis" id="label-nis" class="form-label">Nomor Induk Siswa (NIS)</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input
+                type="text"
+                id="input-nis"
+                class="form-input"
+                placeholder="Masukkan NIS kamu"
+                autocomplete="username"
+                inputmode="numeric"
+                aria-labelledby="label-nis"
+              />
+            </div>
+            <p class="form-error" id="error-nis" role="alert"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="input-password" class="form-label">Kata Sandi</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input
+                type="password"
+                id="input-password"
+                class="form-input"
+                placeholder="Masukkan kata sandi"
+                autocomplete="current-password"
+                aria-label="Kata Sandi"
+              />
+              <button type="button" id="toggle-password" class="input-toggle" aria-label="Tampilkan/sembunyikan kata sandi">
+                <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <p class="form-error" id="error-password" role="alert"></p>
+          </div>
+
+          <p class="form-error form-error-main" id="error-login" role="alert"></p>
+
+          <button type="submit" id="btn-login" class="btn btn-primary btn-lg btn-block">
+            <span id="btn-login-text">Masuk</span>
+            <div id="btn-login-spinner" class="btn-spinner hidden"></div>
+          </button>
+        </form>
+
+        <div class="login-hint card-hint">
+          <p><strong>💡 Demo Akun Siswa:</strong> NIS: 123456 / Sandi: 1234</p>
+          <p><strong>👩‍🏫 Demo Akun Guru:</strong> NIP: GR001 / Sandi: guru123</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 3: DASHBOARD SISWA
+    ======================================================== -->
+    <div id="screen-student-dashboard" class="screen screen-with-nav">
+      <div class="screen-content">
+        <!-- Header -->
+        <div class="student-header">
+          <div class="student-header-info">
+            <div id="student-avatar" class="avatar avatar-lg"></div>
+            <div>
+              <h2 id="student-name" class="student-name">Nama Siswa</h2>
+              <p id="student-class" class="student-class">Kelas —</p>
+            </div>
+          </div>
+          <div class="streak-badge" id="streak-badge">
+            <span class="streak-icon">🔥</span>
+            <span id="streak-count" class="streak-count">0</span>
+            <span class="streak-label">Hari</span>
+          </div>
+        </div>
+
+        <!-- Date chip -->
+        <div class="date-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="today-date"></span>
+        </div>
+
+        <!-- Progress Circle -->
+        <div class="progress-section">
+          <div class="progress-circle-wrap">
+            <svg class="progress-ring" viewBox="0 0 220 220" aria-hidden="true">
+              <defs>
+                <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#66BB6A"/>
+                  <stop offset="100%" style="stop-color:#43A047"/>
+                </linearGradient>
+              </defs>
+              <!-- Background ring -->
+              <circle class="ring-bg" cx="110" cy="110" r="90" />
+              <!-- Progress ring -->
+              <circle id="progress-ring-fill" class="ring-fill" cx="110" cy="110" r="90"
+                stroke-dasharray="565.49" stroke-dashoffset="565.49" />
+            </svg>
+            <div class="progress-center">
+              <span id="progress-points" class="progress-points">0</span>
+              <span class="progress-divider">/</span>
+              <span class="progress-target">60</span>
+              <span class="progress-label">Poin</span>
+            </div>
+          </div>
+
+          <!-- Status message -->
+          <div id="status-message" class="status-message status-incomplete">
+            <span id="status-emoji">⚠️</span>
+            <span id="status-text">Kebutuhan gerakmu belum terpenuhi</span>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon">🏋️</div>
+            <div class="stat-value" id="stat-activities">0</div>
+            <div class="stat-label">Aktivitas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="stat-points">0</div>
+            <div class="stat-label">Poin Hari Ini</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏅</div>
+            <div class="stat-value" id="stat-badges">0</div>
+            <div class="stat-label">Badge</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <button id="btn-add-activity" class="btn btn-primary btn-action">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Aktivitas
+          </button>
+          <button id="btn-view-history" class="btn btn-outline btn-action">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Riwayat
+          </button>
+        </div>
+
+        <!-- Today's Activities List -->
+        <div class="today-activities">
+          <h3 class="section-title">Aktivitas Hari Ini</h3>
+          <div id="today-activity-list" class="activity-list-today">
+            <div class="empty-state">
+              <div class="empty-icon">🏃</div>
+              <p>Belum ada aktivitas hari ini.<br/>Ayo mulai bergerak!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mascot motivator -->
+        <div class="mascot-motivator">
+          <img src="assets/images/kagi.jpg" alt="Kagi" class="mascot-sm" />
+          <div class="mascot-bubble">
+            <p id="mascot-message">Halo! Ayo kita bergerak bersama hari ini! 💪</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Navigation (Student) -->
+      <nav class="bottom-nav" id="student-bottom-nav">
+        <button class="nav-item active" data-screen="student-dashboard" id="nav-dashboard-student">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-screen="student-activities" id="nav-activities">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Aktivitas</span>
+        </button>
+        <button class="nav-item" data-screen="student-history" id="nav-history-student">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Riwayat</span>
+        </button>
+        <button class="nav-item" data-screen="student-profile" id="nav-profile-student">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profil</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 4: PILIH AKTIVITAS
+    ======================================================== -->
+    <div id="screen-student-activities" class="screen screen-with-nav">
+      <div class="screen-content">
+        <div class="screen-header">
+          <button class="btn-back" id="btn-back-activities" aria-label="Kembali">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
+          <h2 class="screen-title">Pilih Aktivitas</h2>
+          <div style="width:40px"></div>
+        </div>
+
+        <!-- Progress mini -->
+        <div class="activity-progress-mini card">
+          <div class="progress-mini-info">
+            <span>Poin hari ini</span>
+            <span id="activity-current-points" class="points-highlight">0/60</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div id="activity-progress-bar" class="progress-bar-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Activity Grid -->
+        <div class="activities-grid" id="activities-grid">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+      <nav class="bottom-nav" id="activity-bottom-nav">
+        <button class="nav-item" data-screen="student-dashboard">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item active" data-screen="student-activities">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Aktivitas</span>
+        </button>
+        <button class="nav-item" data-screen="student-history">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Riwayat</span>
+        </button>
+        <button class="nav-item" data-screen="student-profile">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profil</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 5: HASIL EVALUASI
+    ======================================================== -->
+    <div id="screen-student-result" class="screen">
+      <div class="screen-content result-screen">
+        <!-- Result content rendered by JS -->
+        <div id="result-content"></div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 6: RIWAYAT AKTIVITAS
+    ======================================================== -->
+    <div id="screen-student-history" class="screen screen-with-nav">
+      <div class="screen-content">
+        <div class="screen-header">
+          <div style="width:40px"></div>
+          <h2 class="screen-title">Riwayat</h2>
+          <div style="width:40px"></div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="calendar-card card">
+          <div class="calendar-nav">
+            <button id="cal-prev" class="cal-nav-btn" aria-label="Bulan sebelumnya">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <span id="cal-month-label" class="cal-month-label">November 2024</span>
+            <button id="cal-next" class="cal-nav-btn" aria-label="Bulan selanjutnya">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+          <div class="calendar-weekdays">
+            <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+          </div>
+          <div id="calendar-grid" class="calendar-grid"></div>
+        </div>
+
+        <!-- Day detail -->
+        <div id="history-day-detail" class="history-day-detail card hidden">
+          <h3 id="history-day-title" class="history-day-title"></h3>
+          <div id="history-day-activities"></div>
+        </div>
+
+        <!-- Month summary -->
+        <div class="month-summary card">
+          <div class="month-summary-item">
+            <span class="summary-icon">🔥</span>
+            <div>
+              <div id="month-streak" class="summary-value">0 Hari</div>
+              <div class="summary-label">Streak Terpanjang</div>
+            </div>
+          </div>
+          <div class="month-summary-divider"></div>
+          <div class="month-summary-item">
+            <span class="summary-icon">⭐</span>
+            <div>
+              <div id="month-active-days" class="summary-value">0 Hari</div>
+              <div class="summary-label">Hari Aktif Bulan Ini</div>
+            </div>
+          </div>
+          <div class="month-summary-divider"></div>
+          <div class="month-summary-item">
+            <span class="summary-icon">💪</span>
+            <div>
+              <div id="month-total-points" class="summary-value">0 Poin</div>
+              <div class="summary-label">Total Poin Bulan Ini</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-item" data-screen="student-dashboard">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-screen="student-activities">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Aktivitas</span>
+        </button>
+        <button class="nav-item active" data-screen="student-history">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Riwayat</span>
+        </button>
+        <button class="nav-item" data-screen="student-profile">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profil</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- ========================================================
+         SCREEN: PROFIL SISWA
+    ======================================================== -->
+    <div id="screen-student-profile" class="screen screen-with-nav">
+      <div class="screen-content">
+        <div class="profile-header">
+          <div id="profile-avatar" class="avatar avatar-xl"></div>
+          <h2 id="profile-name" class="profile-name"></h2>
+          <p id="profile-class" class="profile-class"></p>
+          <p id="profile-school" class="profile-school"></p>
+        </div>
+        <div class="profile-stats card">
+          <div class="pstat-item">
+            <span id="pstat-streak" class="pstat-value">0</span>
+            <span class="pstat-label">Hari Streak</span>
+          </div>
+          <div class="pstat-divider"></div>
+          <div class="pstat-item">
+            <span id="pstat-total" class="pstat-value">0</span>
+            <span class="pstat-label">Total Poin</span>
+          </div>
+          <div class="pstat-divider"></div>
+          <div class="pstat-item">
+            <span id="pstat-badges" class="pstat-value">0</span>
+            <span class="pstat-label">Badge</span>
+          </div>
+        </div>
+
+        <!-- Badge showcase -->
+        <div class="section-card card">
+          <h3 class="section-title">Badge Saya</h3>
+          <div id="profile-badges-grid" class="badges-grid"></div>
+        </div>
+
+        <button id="btn-logout-student" class="btn btn-danger btn-block">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Keluar
+        </button>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-item" data-screen="student-dashboard">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-screen="student-activities">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Aktivitas</span>
+        </button>
+        <button class="nav-item" data-screen="student-history">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Riwayat</span>
+        </button>
+        <button class="nav-item active" data-screen="student-profile">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profil</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 7: DASHBOARD GURU
+    ======================================================== -->
+    <div id="screen-teacher-dashboard" class="screen screen-with-nav">
+      <div class="screen-content">
+        <!-- Header -->
+        <div class="teacher-header">
+          <div class="teacher-header-info">
+            <div id="teacher-avatar" class="avatar avatar-lg"></div>
+            <div>
+              <p class="teacher-role-label">Mode Guru</p>
+              <h2 id="teacher-name" class="teacher-name">Nama Guru</h2>
+            </div>
+          </div>
+          <div class="date-chip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="teacher-today-date"></span>
+          </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="teacher-stats-grid">
+          <div class="teacher-stat-card card">
+            <div class="tstat-icon" style="background:#E3F2FD">👥</div>
+            <div class="tstat-value" id="tstat-total">0</div>
+            <div class="tstat-label">Total Siswa</div>
+          </div>
+          <div class="teacher-stat-card card">
+            <div class="tstat-icon" style="background:#E8F5E9">✅</div>
+            <div class="tstat-value text-success" id="tstat-achieved">0</div>
+            <div class="tstat-label">Sudah Target</div>
+          </div>
+          <div class="teacher-stat-card card">
+            <div class="tstat-icon" style="background:#FFF8E1">⚠️</div>
+            <div class="tstat-value text-warning" id="tstat-partial">0</div>
+            <div class="tstat-label">Sedang Berjalan</div>
+          </div>
+          <div class="teacher-stat-card card">
+            <div class="tstat-icon" style="background:#FFEBEE">❌</div>
+            <div class="tstat-value text-danger" id="tstat-inactive">0</div>
+            <div class="tstat-label">Belum Aktif</div>
+          </div>
+        </div>
+
+        <!-- Donut chart -->
+        <div class="chart-card card">
+          <h3 class="section-title">Persentase Siswa Aktif Hari Ini</h3>
+          <div class="chart-donut-wrap">
+            <canvas id="donut-chart" width="200" height="200"></canvas>
+            <div class="donut-center-label">
+              <span id="donut-pct" class="donut-pct">0%</span>
+              <span class="donut-label-text">Aktif</span>
+            </div>
+          </div>
+          <div class="donut-legend">
+            <span class="legend-dot" style="background:#43A047"></span><span>Target Tercapai</span>
+            <span class="legend-dot" style="background:#FF9800"></span><span>Sebagian</span>
+            <span class="legend-dot" style="background:#EF5350"></span><span>Belum Aktif</span>
+          </div>
+        </div>
+
+        <!-- Quick nav -->
+        <div class="teacher-quick-nav">
+          <button id="btn-monitoring" class="teacher-nav-card card">
+            <div class="tnav-icon">📋</div>
+            <div class="tnav-label">Monitoring Siswa</div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <button id="btn-report" class="teacher-nav-card card">
+            <div class="tnav-icon">📊</div>
+            <div class="tnav-label">Laporan Kelas</div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <!-- Bottom Nav Teacher -->
+      <nav class="bottom-nav" id="teacher-bottom-nav">
+        <button class="nav-item active" data-screen="teacher-dashboard">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-screen="teacher-monitoring">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Monitoring</span>
+        </button>
+        <button class="nav-item" data-screen="teacher-report">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Laporan</span>
+        </button>
+        <button class="nav-item" data-screen="teacher-profile">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profil</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 8: MONITORING SISWA (GURU)
+    ======================================================== -->
+    <div id="screen-teacher-monitoring" class="screen screen-with-nav">
+      <div class="screen-content">
+        <div class="screen-header">
+          <div style="width:40px"></div>
+          <h2 class="screen-title">Monitoring Siswa</h2>
+          <div style="width:40px"></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-row">
+          <select id="filter-class" class="filter-select" aria-label="Filter kelas">
+            <option value="">Semua Kelas</option>
+            <option value="1A">Kelas 1A</option>
+            <option value="2A">Kelas 2A</option>
+            <option value="3A">Kelas 3A</option>
+            <option value="4A">Kelas 4A</option>
+            <option value="5A">Kelas 5A</option>
+            <option value="6A">Kelas 6A</option>
+          </select>
+          <select id="filter-status" class="filter-select" aria-label="Filter status">
+            <option value="">Semua Status</option>
+            <option value="achieved">Target Tercapai</option>
+            <option value="partial">Sedang Berjalan</option>
+            <option value="inactive">Belum Aktif</option>
+          </select>
+        </div>
+
+        <!-- Search -->
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search-student" type="search" class="search-input" placeholder="Cari nama siswa..." aria-label="Cari siswa" />
+        </div>
+
+        <!-- Student count -->
+        <p class="result-count"><span id="monitoring-count">0</span> Siswa</p>
+
+        <!-- Student list -->
+        <div id="monitoring-list" class="monitoring-list">
+          <div class="loading-placeholder">Memuat data siswa...</div>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-item" data-screen="teacher-dashboard">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item active" data-screen="teacher-monitoring">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Monitoring</span>
+        </button>
+        <button class="nav-item" data-screen="teacher-report">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Laporan</span>
+        </button>
+        <button class="nav-item" data-screen="teacher-profile">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profil</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 9: DETAIL SISWA (GURU)
+    ======================================================== -->
+    <div id="screen-teacher-student-detail" class="screen">
+      <div class="screen-content">
+        <div class="screen-header">
+          <button class="btn-back" id="btn-back-detail" aria-label="Kembali">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
+          <h2 class="screen-title">Detail Siswa</h2>
+          <div style="width:40px"></div>
+        </div>
+        <div id="student-detail-content">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SCREEN 10: LAPORAN KELAS (GURU)
+    ======================================================== -->
+    <div id="screen-teacher-report" class="screen screen-with-nav">
+      <div class="screen-content" id="report-content">
+        <div class="screen-header">
+          <div style="width:40px"></div>
+          <h2 class="screen-title">Laporan Kelas</h2>
+          <div style="width:40px"></div>
+        </div>
+
+        <!-- Class selector -->
+        <div class="filter-row">
+          <select id="report-class-filter" class="filter-select" style="flex:1" aria-label="Pilih kelas untuk laporan">
+            <option value="">Semua Kelas</option>
+            <option value="1A">Kelas 1A</option>
+            <option value="2A">Kelas 2A</option>
+            <option value="3A">Kelas 3A</option>
+            <option value="4A">Kelas 4A</option>
+            <option value="5A">Kelas 5A</option>
+            <option value="6A">Kelas 6A</option>
+          </select>
+        </div>
+
+        <!-- Report stat cards -->
+        <div class="report-stats">
+          <div class="report-stat-card card">
+            <div class="rstat-label">Rata-rata Poin Hari Ini</div>
+            <div class="rstat-value text-primary" id="report-avg">0</div>
+          </div>
+          <div class="report-stat-card card">
+            <div class="rstat-label">% Capai Target</div>
+            <div class="rstat-value text-success" id="report-pct">0%</div>
+          </div>
+        </div>
+
+        <!-- Weekly chart -->
+        <div class="chart-card card">
+          <h3 class="section-title">Rata-rata Poin 7 Hari Terakhir</h3>
+          <canvas id="weekly-chart" height="200"></canvas>
+        </div>
+
+        <!-- Top students -->
+        <div class="section-card card">
+          <h3 class="section-title">🏆 Siswa Paling Aktif</h3>
+          <div id="report-top-students"></div>
+        </div>
+
+        <!-- Most popular activities -->
+        <div class="chart-card card">
+          <h3 class="section-title">Aktivitas Paling Populer</h3>
+          <canvas id="activity-bar-chart" height="200"></canvas>
+        </div>
+
+        <!-- Print buttons -->
+        <div class="report-actions">
+          <button id="btn-print" class="btn btn-outline">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Cetak Laporan
+          </button>
+          <button id="btn-download" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Unduh PDF
+          </button>
+        </div>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-item" data-screen="teacher-dashboard">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-screen="teacher-monitoring">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Monitoring</span>
+        </button>
+        <button class="nav-item active" data-screen="teacher-report">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Laporan</span>
+        </button>
+        <button class="nav-item" data-screen="teacher-profile">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profil</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Profil Guru -->
+    <div id="screen-teacher-profile" class="screen screen-with-nav">
+      <div class="screen-content">
+        <div class="profile-header">
+          <div id="teacher-profile-avatar" class="avatar avatar-xl"></div>
+          <h2 id="teacher-profile-name" class="profile-name"></h2>
+          <p class="profile-class">Guru</p>
+          <p id="teacher-profile-school" class="profile-school"></p>
+        </div>
+        <div class="section-card card" style="text-align:center;padding:16px">
+          <p style="color:var(--text-secondary);font-size:14px">NIP: <strong id="teacher-profile-nip"></strong></p>
+        </div>
+        <button id="btn-logout-teacher" class="btn btn-danger btn-block">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Keluar
+        </button>
+      </div>
+      <nav class="bottom-nav">
+        <button class="nav-item" data-screen="teacher-dashboard">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-screen="teacher-monitoring">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Monitoring</span>
+        </button>
+        <button class="nav-item" data-screen="teacher-report">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Laporan</span>
+        </button>
+        <button class="nav-item active" data-screen="teacher-profile">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profil</span>
+        </button>
+      </nav>
+    </div>
+
+  </div><!-- #app -->
+
+  <!-- JS Scripts (order matters) -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/student.js"></script>
+  <script src="js/teacher.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
